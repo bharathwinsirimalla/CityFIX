@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const apiOrigin = import.meta.env.VITE_API_ORIGIN || "http://localhost:5000";
+const apiOrigin = import.meta.env.VITE_API_ORIGIN || "https://cityfix-1-m1tx.onrender.com";
 const baseURL = import.meta.env.VITE_API_BASE_URL || `${apiOrigin}/api`;
 
 export const api = axios.create({
