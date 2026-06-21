@@ -124,6 +124,8 @@ VITE_API_ORIGIN=http://localhost:5000
 VITE_SOCKET_URL=http://localhost:5000
 ```
 
+Use the **backend** URL only. Do not add `/api` — the app adds it automatically.
+
 ---
 
 ## Real-Time Notifications
