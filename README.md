@@ -51,7 +51,6 @@ Cloudinary is integrated as an optional backend feature. When configured, CityFi
 
 - MongoDB Atlas
 - Cloudinary
-- Render
 
 ---
 
@@ -156,43 +155,6 @@ Rejected  Rejected     Rejected (Admin)
 
 ---
 
-## Deployment
-
-CityFix is deployed as two Render services from one GitHub repository using `render.yaml`:
-
-| Service | Type | Directory |
-|---------|------|-----------|
-| `cityfix-api` | Web Service (Node.js) | `backend` |
-| `cityfix-web` | Static Site (React) | `frontend` |
-
-### Quick deploy steps
-
-1. Push the repo to GitHub.
-2. Create a MongoDB Atlas cluster and copy `MONGO_URI`.
-3. On Render → **New** → **Blueprint** → connect the repo.
-4. Set environment variables when prompted.
-5. After deploy, set `CLIENT_ORIGIN` on the API to your frontend URL.
-6. Redeploy the frontend if `VITE_*` variables change.
-
-### Production environment variables
-
-**Backend (`cityfix-api`)**
-
-```env
-MONGO_URI=
-JWT_SECRET=
-CLIENT_ORIGIN=https://cityfix-web.onrender.com
-```
-
-**Frontend (`cityfix-web`)**
-
-```env
-VITE_API_ORIGIN=https://cityfix-api.onrender.com
-VITE_SOCKET_URL=https://cityfix-api.onrender.com
-```
-
----
-
 ## API Reference
 
 Base URL:
@@ -276,8 +238,3 @@ http://localhost:{PORT}/api
 GitHub: https://github.com/YOUR_USERNAME
 
 LinkedIn: https://www.linkedin.com/in/YOUR_PROFILE
-
-**Live Demo**
-
-- Frontend: https://cityfix-web.onrender.com
-- API: https://cityfix-api.onrender.com
