@@ -1,10 +1,10 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { api } from "../../lib/api";
+import { getApiOrigin } from "../../lib/config";
 import { connectSocket, disconnectSocket } from "../../lib/socket";
 
 const tokenKey = "cityfix_token";
-const connectivityErrorMessage =
-  "Cannot reach server. Make sure backend is running on http://localhost:5000 and try again.";
+const connectivityErrorMessage = `Cannot reach server at ${getApiOrigin()}. Check that the backend is running and try again.`;
 
 const getAuthErrorMessage = (err) => {
   if (err.response?.data?.message) return err.response.data.message;

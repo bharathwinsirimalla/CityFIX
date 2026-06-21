@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { Server as SocketIOServer } from "socket.io";
 
 import app from "./app.js";
+import { getAllowedOrigins } from "./config/cors.js";
 import { connectDB } from "./config/db.js";
 import { User } from "./models/User.js";
 
@@ -13,8 +14,9 @@ const server = http.createServer(app);
 
 const io = new SocketIOServer(server, {
   cors: {
-    origin: process.env.CLIENT_ORIGIN || "*",
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"]
+    origin: getAllowedOrigins(),
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    credentials: true
   }
 });
 
