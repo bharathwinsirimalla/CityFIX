@@ -2,6 +2,11 @@ import { Complaint } from "../models/Complaint.js";
 import { User } from "../models/User.js";
 import { createNotificationForUser } from "./notification.controller.js";
 
+const populateComplaint = (id) =>
+  Complaint.findById(id)
+    .populate("createdBy", "name email")
+    .populate("assignedOfficer", "name email");
+
 export const assignComplaint = async (req, res, next) => {
   try {
     const { officerId } = req.body;
@@ -41,7 +46,8 @@ export const assignComplaint = async (req, res, next) => {
         complaintId: complaint._id
       });
 
-      return res.json({ complaint });
+      const updated = await populateComplaint(complaint._id);
+      return res.json({ complaint: updated });
     }
 
     const officer = await User.findById(officerId);
@@ -86,7 +92,8 @@ export const assignComplaint = async (req, res, next) => {
       officerId
     });
 
-    res.json({ complaint });
+    const updated = await populateComplaint(complaint._id);
+    res.json({ complaint: updated });
   } catch (err) {
     next(err);
   }

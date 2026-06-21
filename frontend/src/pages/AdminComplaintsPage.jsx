@@ -6,6 +6,12 @@ import { connectSocket } from "../lib/socket";
 import ConfirmDialog from "../components/ConfirmDialog";
 import AlertBanner from "../components/AlertBanner";
 
+const officerIdOf = (complaint) => {
+  const officer = complaint?.assignedOfficer;
+  if (!officer) return "";
+  return String(officer._id || officer);
+};
+
 export default function AdminComplaintsPage() {
   const { token } = useSelector((s) => s.auth);
   const [complaints, setComplaints] = useState([]);
@@ -13,6 +19,7 @@ export default function AdminComplaintsPage() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [pendingAssign, setPendingAssign] = useState(null);
+  const [isAssigning, setIsAssigning] = useState(false);
 
   const load = async () => {
     try {
@@ -42,41 +49,57 @@ export default function AdminComplaintsPage() {
     };
   }, [token]);
 
+  const updateComplaintInList = (updated) => {
+    setComplaints((prev) => prev.map((c) => (c._id === updated._id ? updated : c)));
+  };
+
   const confirmAssign = async () => {
-    if (!pendingAssign) return;
+    if (!pendingAssign || isAssigning) return;
     const { complaintId, officerId, complaintTitle, officerName } = pendingAssign;
 
+    setIsAssigning(true);
+    setError(null);
+
     try {
-      await api.patch(`/admin/complaints/${complaintId}/assign`, {
+      const { data } = await api.patch(`/admin/complaints/${complaintId}/assign`, {
         officerId: officerId || null
       });
+
+      updateComplaintInList(data.complaint);
       setSuccess(
         officerId
           ? `"${complaintTitle}" assigned to ${officerName}`
           : `"${complaintTitle}" returned to the unassigned queue`
       );
-      setError(null);
-      await load();
+      setPendingAssign(null);
     } catch (e) {
       setError(e.response?.data?.message || e.message);
       setSuccess(null);
     } finally {
-      setPendingAssign(null);
+      setIsAssigning(false);
     }
   };
 
   const onOfficerChange = (complaint, nextOfficerId) => {
-    const currentId = complaint.assignedOfficer?._id || "";
+    const currentId = officerIdOf(complaint);
     if (nextOfficerId === currentId) return;
 
-    const officer = officers.find((o) => o._id === nextOfficerId);
+    const officer = officers.find((o) => String(o._id) === nextOfficerId);
     setPendingAssign({
       complaintId: complaint._id,
       officerId: nextOfficerId || null,
+      previousOfficerId: currentId,
       complaintTitle: complaint.title,
       officerName: officer?.name || "Unassigned",
       isUnassign: !nextOfficerId
     });
+  };
+
+  const getSelectValue = (complaint) => {
+    if (pendingAssign?.complaintId === complaint._id) {
+      return pendingAssign.previousOfficerId;
+    }
+    return officerIdOf(complaint);
   };
 
   const getStatusColor = (status) => {
@@ -148,13 +171,13 @@ export default function AdminComplaintsPage() {
                   <td className="px-6 py-4">
                     <select
                       className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:bg-slate-100"
-                      value={c.assignedOfficer?._id || ""}
-                      disabled={["Resolved", "Rejected"].includes(c.status)}
+                      value={getSelectValue(c)}
+                      disabled={["Resolved", "Rejected"].includes(c.status) || isAssigning}
                       onChange={(e) => onOfficerChange(c, e.target.value)}
                     >
                       <option value="">Unassigned</option>
                       {officers.map((o) => (
-                        <option key={o._id} value={o._id}>
+                        <option key={o._id} value={String(o._id)}>
                           {o.name} ({o.email})
                         </option>
                       ))}
@@ -180,10 +203,11 @@ export default function AdminComplaintsPage() {
         message={dialogMessage}
         confirmLabel={pendingAssign?.isUnassign ? "Unassign" : "Assign"}
         variant={pendingAssign?.isUnassign ? "danger" : "primary"}
+        isLoading={isAssigning}
         onConfirm={confirmAssign}
         onCancel={() => {
+          if (isAssigning) return;
           setPendingAssign(null);
-          load();
         }}
       />
     </div>

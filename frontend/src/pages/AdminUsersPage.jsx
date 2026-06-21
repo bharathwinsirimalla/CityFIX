@@ -10,6 +10,7 @@ export default function AdminUsersPage() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [pendingRoleChange, setPendingRoleChange] = useState(null);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const load = async () => {
     try {
@@ -24,6 +25,13 @@ export default function AdminUsersPage() {
   useEffect(() => {
     load();
   }, []);
+
+  const getRoleValue = (user) => {
+    if (pendingRoleChange?.userId === user._id) {
+      return pendingRoleChange.currentRole;
+    }
+    return user.role;
+  };
 
   const onRoleSelect = (targetUser, nextRole) => {
     if (nextRole === targetUser.role) return;
@@ -43,19 +51,22 @@ export default function AdminUsersPage() {
   };
 
   const confirmRoleChange = async () => {
-    if (!pendingRoleChange) return;
+    if (!pendingRoleChange || isUpdating) return;
     const { userId, userName, nextRole } = pendingRoleChange;
 
+    setIsUpdating(true);
+    setError(null);
+
     try {
-      await api.patch(`/admin/users/${userId}/role`, { role: nextRole });
+      const { data } = await api.patch(`/admin/users/${userId}/role`, { role: nextRole });
+      setUsers((prev) => prev.map((u) => (u._id === data.user._id ? data.user : u)));
       setSuccess(`${userName} is now an ${nextRole}`);
-      setError(null);
-      await load();
+      setPendingRoleChange(null);
     } catch (e) {
       setError(e.response?.data?.message || e.message);
       setSuccess(null);
     } finally {
-      setPendingRoleChange(null);
+      setIsUpdating(false);
     }
   };
 
@@ -115,9 +126,9 @@ export default function AdminUsersPage() {
                     </td>
                     <td className="px-6 py-4">
                       <select
-                        className={`rounded-lg border-0 px-3 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-60 ${getRoleColor(u.role)}`}
-                        value={u.role}
-                        disabled={isSelf}
+                        className={`rounded-lg border-0 px-3 py-2 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-60 ${getRoleColor(getRoleValue(u))}`}
+                        value={getRoleValue(u)}
+                        disabled={isSelf || isUpdating}
                         title={isSelf ? "You cannot change your own role" : undefined}
                         onChange={(e) => onRoleSelect(u, e.target.value)}
                       >
@@ -155,10 +166,11 @@ export default function AdminUsersPage() {
             : ""
         }
         confirmLabel="Update Role"
+        isLoading={isUpdating}
         onConfirm={confirmRoleChange}
         onCancel={() => {
+          if (isUpdating) return;
           setPendingRoleChange(null);
-          load();
         }}
       />
     </div>

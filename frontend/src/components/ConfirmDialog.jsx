@@ -7,6 +7,7 @@ export default function ConfirmDialog({
   confirmLabel = "Confirm",
   cancelLabel = "Cancel",
   variant = "primary",
+  isLoading = false,
   onConfirm,
   onCancel
 }) {
@@ -17,6 +18,11 @@ export default function ConfirmDialog({
       ? "bg-error hover:opacity-90"
       : "bg-primary hover:opacity-90";
 
+  const handleConfirm = () => {
+    if (isLoading) return;
+    onConfirm?.();
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
       <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-hover" role="dialog" aria-modal="true">
@@ -26,16 +32,18 @@ export default function ConfirmDialog({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            disabled={isLoading}
+            className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-60"
           >
             {cancelLabel}
           </button>
           <button
             type="button"
-            onClick={onConfirm}
-            className={`rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-card transition-all ${confirmClass}`}
+            onClick={handleConfirm}
+            disabled={isLoading}
+            className={`rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-card transition-all disabled:opacity-60 ${confirmClass}`}
           >
-            {confirmLabel}
+            {isLoading ? "Please wait..." : confirmLabel}
           </button>
         </div>
       </div>
