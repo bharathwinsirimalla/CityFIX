@@ -3,6 +3,11 @@ const stripTrailingSlash = (value) => value.replace(/\/+$/, "");
 /** Origin only — never includes /api */
 const normalizeOrigin = (value) => stripTrailingSlash(value).replace(/\/api$/, "");
 
+export const getMissingEnvVars = () =>
+  ["VITE_API_ORIGIN", "VITE_SOCKET_URL"].filter((key) => !import.meta.env[key]?.trim());
+
+export const hasRequiredEnv = () => getMissingEnvVars().length === 0;
+
 const requireEnv = (key) => {
   const value = import.meta.env[key]?.trim();
   if (!value) {
@@ -13,7 +18,6 @@ const requireEnv = (key) => {
 
 export const getApiOrigin = () => requireEnv("VITE_API_ORIGIN");
 
-/** Always exactly one /api suffix */
 export const getApiBaseUrl = () => `${getApiOrigin()}/api`;
 
 export const getSocketUrl = () => requireEnv("VITE_SOCKET_URL");

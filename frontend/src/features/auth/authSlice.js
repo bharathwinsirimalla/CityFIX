@@ -4,12 +4,14 @@ import { getApiOrigin } from "../../lib/config";
 import { connectSocket, disconnectSocket } from "../../lib/socket";
 
 const tokenKey = "cityfix_token";
-const connectivityErrorMessage = `Cannot reach server at ${getApiOrigin()}. Check that the backend is running and try again.`;
+
+const getConnectivityErrorMessage = () =>
+  `Cannot reach server at ${getApiOrigin()}. Check that the backend is running and try again.`;
 
 const getAuthErrorMessage = (err) => {
   if (err.response?.data?.message) return err.response.data.message;
   if (err.code === "ECONNABORTED") return "Request timed out. Please try again.";
-  if (err.message === "Network Error" || !err.response) return connectivityErrorMessage;
+  if (err.message === "Network Error" || !err.response) return getConnectivityErrorMessage();
   return err.message || "Something went wrong. Please try again.";
 };
 

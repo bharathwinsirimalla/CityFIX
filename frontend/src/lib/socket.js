@@ -1,12 +1,12 @@
 import { io } from "socket.io-client";
 import { getSocketUrl } from "./config";
 
-const socketUrl = getSocketUrl();
-
 let socket;
 
 export const connectSocket = (token) => {
   if (!token) return null;
+
+  const socketUrl = getSocketUrl();
 
   if (!socket) {
     socket = io(socketUrl, {
@@ -40,4 +40,3 @@ export const disconnectSocket = () => {
     socket = null;
   }
 };
-
