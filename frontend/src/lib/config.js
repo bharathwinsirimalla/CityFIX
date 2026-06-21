@@ -1,36 +1,19 @@
-const PROD_API_ORIGIN = "https://cityfix-6dxy.onrender.com";
-
 const stripTrailingSlash = (value) => value.replace(/\/+$/, "");
 
 /** Origin only — never includes /api */
-const normalizeOrigin = (value) => {
-  if (!value) return value;
-  return stripTrailingSlash(value).replace(/\/api$/, "");
+const normalizeOrigin = (value) => stripTrailingSlash(value).replace(/\/api$/, "");
+
+const requireEnv = (key) => {
+  const value = import.meta.env[key]?.trim();
+  if (!value) {
+    throw new Error(`${key} is required. Set it in frontend/.env.local (local) or Render environment (deploy).`);
+  }
+  return normalizeOrigin(value);
 };
 
-export const getApiOrigin = () => {
-  if (import.meta.env.VITE_API_ORIGIN) {
-    return normalizeOrigin(import.meta.env.VITE_API_ORIGIN);
-  }
-
-  if (import.meta.env.VITE_API_BASE_URL) {
-    return normalizeOrigin(import.meta.env.VITE_API_BASE_URL);
-  }
-
-  if (import.meta.env.PROD) {
-    return PROD_API_ORIGIN;
-  }
-
-  return "http://localhost:5000";
-};
+export const getApiOrigin = () => requireEnv("VITE_API_ORIGIN");
 
 /** Always exactly one /api suffix */
 export const getApiBaseUrl = () => `${getApiOrigin()}/api`;
 
-export const getSocketUrl = () => {
-  if (import.meta.env.VITE_SOCKET_URL) {
-    return normalizeOrigin(import.meta.env.VITE_SOCKET_URL);
-  }
-
-  return getApiOrigin();
-};
+export const getSocketUrl = () => requireEnv("VITE_SOCKET_URL");

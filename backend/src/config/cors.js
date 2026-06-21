@@ -1,15 +1,22 @@
-const DEFAULT_ORIGINS = [
-  "http://localhost:5173",
-  "https://cityfix-1-m1tx.onrender.com"
-];
-
-export const getAllowedOrigins = () => {
-  const fromEnv = (process.env.CLIENT_ORIGIN || "")
+const getClientOriginsFromEnv = () =>
+  (process.env.CLIENT_ORIGIN || "")
     .split(",")
     .map((origin) => origin.trim())
     .filter(Boolean);
 
-  return [...new Set([...DEFAULT_ORIGINS, ...fromEnv])];
+export const getAllowedOrigins = () => {
+  const fromEnv = getClientOriginsFromEnv();
+
+  if (fromEnv.length > 0) {
+    return [...new Set(fromEnv)];
+  }
+
+  if (process.env.NODE_ENV === "production") {
+    console.warn("CLIENT_ORIGIN is not set. Browser requests from your frontend may be blocked by CORS.");
+    return [];
+  }
+
+  return ["http://localhost:5173"];
 };
 
 export const corsOriginChecker = (origin, callback) => {

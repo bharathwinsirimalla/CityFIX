@@ -64,19 +64,21 @@ git clone https://github.com/YOUR_USERNAME/CityFIX.git
 
 ```bash
 cd backend
-cp .env.example .env
 npm install
 npm run dev
 ```
+
+Create `backend/.env` with `MONGO_URI`, `JWT_SECRET`, and `CLIENT_ORIGIN`.
 
 ### Frontend
 
 ```bash
 cd frontend
-cp .env.example .env.local
 npm install
 npm run dev
 ```
+
+Create `frontend/.env.local` with `VITE_API_ORIGIN` and `VITE_SOCKET_URL`.
 
 ### Root scripts (optional)
 
@@ -101,30 +103,11 @@ npm run dev:frontend
 
 ## Environment Variables
 
-### `/backend/.env`
+Set these in `backend/.env` (local), `frontend/.env.local` (local), or in your Render service settings (deploy). Do not add `/api` to frontend URLs — the app adds it for REST calls.
 
-```env
-PORT=5000
-NODE_ENV=development
-MONGO_URI=
-JWT_SECRET=
-CLIENT_ORIGIN=http://localhost:5173
-
-# Optional media uploads.
-# If omitted, complaints are created without images.
-CLOUDINARY_CLOUD_NAME=
-CLOUDINARY_API_KEY=
-CLOUDINARY_API_SECRET=
-```
-
-### `/frontend/.env.local`
-
-```env
-VITE_API_ORIGIN=http://localhost:5000
-VITE_SOCKET_URL=http://localhost:5000
-```
-
-Use the **backend** URL only. Do not add `/api` — the app adds it automatically.
+**Backend:** `PORT`, `MONGO_URI`, `JWT_SECRET`, `CLIENT_ORIGIN`  
+**Frontend:** `VITE_API_ORIGIN`, `VITE_SOCKET_URL`  
+**Optional:** `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
 
 ---
 
