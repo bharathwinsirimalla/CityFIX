@@ -57,7 +57,7 @@ Cloudinary is integrated as an optional backend feature. When configured, CityFi
 ## Getting Started
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/CityFIX.git
+git clone https://github.com/bharathwinsirimalla/CityFIX.git
 ```
 
 ### Backend
@@ -92,22 +92,61 @@ npm run dev:frontend
 - Backend: http://localhost:5000
 - Health check: http://localhost:5000/api/health
 
-### Create first admin (local)
+### Create first admin
 
 1. Register at `/register` (creates a citizen account).
 2. Open MongoDB Atlas → `users` collection → set `role` to `"admin"`.
 3. Log out and log back in.
 4. Promote officers from **Admin → User Management**.
 
+Works the same locally and on production.
+
 ---
 
 ## Environment Variables
 
-Set these in `backend/.env` (local), `frontend/.env.local` (local), or in your Render service settings (deploy). Do not add `/api` to frontend URLs — the app adds it for REST calls.
+Set these in `backend/.env` (local), `frontend/.env.local` (local), or in your Render service settings (deploy).
 
-**Backend:** `PORT`, `MONGO_URI`, `JWT_SECRET`, `CLIENT_ORIGIN`  
-**Frontend:** `VITE_API_ORIGIN`, `VITE_SOCKET_URL`  
-**Optional:** `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
+**Do not add `/api`** to `VITE_API_ORIGIN` or `VITE_SOCKET_URL` — the app adds `/api` for REST calls automatically.
+
+### Local
+
+**Backend** (`backend/.env`)
+
+```env
+PORT=5000
+MONGO_URI=
+JWT_SECRET=
+CLIENT_ORIGIN=http://localhost:5173
+```
+
+**Frontend** (`frontend/.env.local`)
+
+```env
+VITE_API_ORIGIN=http://localhost:5000
+VITE_SOCKET_URL=http://localhost:5000
+```
+
+### Production (Render)
+
+**Backend Web Service**
+
+```env
+MONGO_URI=
+JWT_SECRET=
+CLIENT_ORIGIN=https://your-frontend-url.onrender.com
+```
+
+**Frontend Static Site** (set before build)
+
+```env
+VITE_API_ORIGIN=https://your-backend-url.onrender.com
+VITE_SOCKET_URL=https://your-backend-url.onrender.com
+```
+
+**Optional (backend):** `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`
+
+**Health check path (Render):** `/api/health`
 
 ---
 
@@ -134,9 +173,10 @@ Rejected  Rejected     Rejected (Admin)
 ```
 
 - **Citizens** submit complaints and track their own issues.
-- **Admins** assign officers, reject invalid complaints, and may force-resolve escalations.
-- **Officers** update only complaints assigned to them.
+- **Admins** assign or unassign officers, reject invalid complaints, and may force-resolve escalations.
+- **Officers** update only complaints assigned to them: `Assigned` → `In Progress` → `Resolved`.
 - **Resolved** and **Rejected** are terminal states.
+- Resolution notes are required when marking **Resolved** or **Rejected**.
 
 ---
 
@@ -220,6 +260,11 @@ http://localhost:{PORT}/api
 
 ## Author
 
-GitHub: https://github.com/YOUR_USERNAME
+GitHub: https://github.com/bharathwinsirimalla
 
-LinkedIn: https://www.linkedin.com/in/YOUR_PROFILE
+LinkedIn: https://www.linkedin.com/in/bharathwinsirimalla/
+
+**Live Demo**
+
+- Frontend: https://cityfix-1-m1tx.onrender.com
+- API: https://cityfix-6dxy.onrender.com
